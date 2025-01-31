@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">DocumentBank</string>
+    <string name="str_additional_ac_running_cost">Additional AC Running Cost</string>
+    <string name="str_total_ac_hours">Total AC (Hrs)</string>
+    <string name="str_fuel_consumtion_ltr_hours">Fuel Consum.(ltr/hrs)</string>
+    <string name="str_total_ac_amount">Total AC Amount(₹)</string>
+    <string name="str_total_additional_ac_amount">Total Additional Amount (₹)</string>
+    <string name="str_mountain_road">Mountain Road</string>
+    <string name="str_start_km">Start Km</string>
+    <string name="str_end_km">End Km</string>
+    <string name="str_total_km">Total Km</string>
+    <string name="str_average_km">Average Km</string>
+    <string name="str_fuel_rate">Fuel Rate</string>
+    <string name="str_total_expense">Total Expense (₹)</string>
+    <string name="str_driver_settlement_reimbursement">Driver Settlement Reimbursement</string>
+    <string name="str_actual_paid_for_trip">Actual Paid for Trip</string>
+    <string name="str_fast_tag_charges">Fast Tag Charges</string>
+    <string name="str_driver_direct_payment">Driver Direct Payment</string>
+    <string name="str_to_pay">Amount to Pay(₹)</string>
+    <string name="str_settle">Settle</string>
+</resources>
