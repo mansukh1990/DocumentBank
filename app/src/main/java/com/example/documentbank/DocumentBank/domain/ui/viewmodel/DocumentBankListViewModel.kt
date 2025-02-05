@@ -32,8 +32,11 @@ class DocumentBankListViewModel @Inject constructor(
 
     private val _documentTypes =
         MutableStateFlow<ApiState<List<DocumentTypeResponse>>>(ApiState.Loading)
-    val documentTypes: StateFlow<ApiState<List<DocumentTypeResponse>>> =
+    val documentTypes =
         _documentTypes.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
 
     private val _selectedDocumentType = MutableStateFlow<DocumentTypeResponse?>(null)
     val selectedDocumentType = _selectedDocumentType.asStateFlow()
@@ -50,8 +53,9 @@ class DocumentBankListViewModel @Inject constructor(
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
-    private var currentPage = 1
-    private var lastPage = false
+    init {
+        fetchDocumentTypes()
+    }
 
     fun uploadDocumentBankMediaFile(
         model: String,
@@ -112,7 +116,7 @@ class DocumentBankListViewModel @Inject constructor(
         documentBankId = "1"
     )
 
-    fun fetchDocumentTypes(
+  fun fetchDocumentTypes(
     ) {
         viewModelScope.launch {
             repository.getDocumentTypes(
@@ -122,6 +126,10 @@ class DocumentBankListViewModel @Inject constructor(
             }
         }
     }
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
 
     fun setSelectedDocumentType(documentType: DocumentTypeResponse) {
         _selectedDocumentType.value = documentType
@@ -130,18 +138,27 @@ class DocumentBankListViewModel @Inject constructor(
     fun fetchDocuments(
         request: DocumentBankListRequest,
     ) {
-        if (_loading.value || lastPage) return
         viewModelScope.launch {
-            repository.getDocumentBankList(request, currentPage)
-                .onStart { _documents.value = ApiState.Loading } // Emit loading state
-                .catch { e ->
-                    _documents.value = ApiState.Failure(e.message ?: "Unknown error")
-                } // Handle error
-                .collect { result ->
-                    _documents.value = ApiState.Success(result)
-                    lastPage = result.isEmpty()
-                    _loading.value = false
-                }
+            val allDocuments = mutableListOf<DocumentBankListResponse>()
+            var currentPage = 1
+            var lastPage: Int? = null
+
+            do {
+                repository.getDocumentBankList(request, currentPage)
+                    .onStart {
+                        _documents.value = ApiState.Loading
+                    }
+                    .catch { e ->
+                        _documents.value = ApiState.Failure(e.message ?: "inknown error")
+                    }.collect { result ->
+                        _documents.value = ApiState.Success(result)
+                        allDocuments.addAll(result)
+                        lastPage = result.size
+                        currentPage++
+                    }
+            } while (lastPage != null && currentPage <= lastPage!!)
+            _documents.value = ApiState.Success(allDocuments)
+
         }
     }
 

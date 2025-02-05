@@ -119,6 +119,7 @@ fun LoginScreenNew(
         viewModel.loginState.collectAsState().value
     ) {
         viewModel.isLoggedIn()
+        navHostController.navigate(documentBankScreen)
 
     }
 }

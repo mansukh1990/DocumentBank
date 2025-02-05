@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,14 +54,14 @@ fun DocumentEachRow(
                 modifier = Modifier
                     .size(40.dp)
                     .background(Color(0xFFEEEEEE))
-                    .border(1.dp, Color(0xFFEEEEEE), shape = RoundedCornerShape(8.dp)),
+                    .border(1.dp, Color(0xFFEEEEEE), shape = RoundedCornerShape(10.dp)),
                 contentAlignment = Center,
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(document.file_url),
                     contentDescription = "",
-                    alignment = Alignment.TopCenter,
-                    modifier = Modifier.padding(5.dp),
+                    alignment = Center,
+                    modifier = Modifier.padding(0.dp),
                     contentScale = ContentScale.Fit
                 )
             }

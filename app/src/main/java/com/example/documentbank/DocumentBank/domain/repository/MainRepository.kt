@@ -25,7 +25,7 @@ interface MainRepository {
 
     suspend fun getDocumentBankList(
         request: DocumentBankListRequest,
-        page :Int
+        page: Int
     ): Flow<List<DocumentBankListResponse>>
 
     suspend fun uploadDocumentBankMediaFile(

@@ -29,8 +29,9 @@ class RepositoryImpl @Inject constructor(
             val response = apiService.login(
                 loginRequest = loginRequest
             )
-            emit(ApiState.Success(response.data!!))
-            sharedPreferences.saveToken(response.data.token)
+            sharedPreferences.saveToken(response.data!!.token)
+            emit(ApiState.Success(response.data))
+
         } catch (e: Exception) {
             emit(ApiState.Failure(e.localizedMessage ?: "unknown error"))
         }
@@ -55,6 +56,7 @@ class RepositoryImpl @Inject constructor(
                 model = request.model,
                 collection = request.collection,
                 page = page
+
             )
             emit(response.data!!)
 
