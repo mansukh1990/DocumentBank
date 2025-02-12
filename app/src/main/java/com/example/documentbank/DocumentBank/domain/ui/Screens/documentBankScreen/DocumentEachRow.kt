@@ -1,5 +1,7 @@
 package com.example.documentbank.DocumentBank.domain.ui.Screens.documentBankScreen
 
+import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,24 +16,42 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentBankListResponse
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.documentbank.R
 
 @Composable
 fun DocumentEachRow(
-    document: DocumentBankListResponse,
-    onUpdate: () -> Unit,
-    onDelete: () -> Unit,
-    onEdit: () -> Unit,
+    imageUrl: String? = null,
+    imageUri: Uri? = null,
+    onUpload: () -> Unit,
     onReject: () -> Unit
 
 ) {
@@ -39,7 +59,7 @@ fun DocumentEachRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp)
-            .background(Color.White)
+            .background(White)
             .clip(shape = RoundedCornerShape(8.dp))
             .border(1.dp, Color(0xFFDCDCDC), shape = RoundedCornerShape(8.dp))
     ) {
@@ -57,53 +77,35 @@ fun DocumentEachRow(
                     .border(1.dp, Color(0xFFEEEEEE), shape = RoundedCornerShape(10.dp)),
                 contentAlignment = Center,
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(document.file_url),
-                    contentDescription = "",
-                    alignment = Center,
-                    modifier = Modifier.padding(0.dp),
-                    contentScale = ContentScale.Fit
-                )
+                if (imageUrl != null) {
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "Fetched Image",
+                        alignment = Center,
+                        modifier = Modifier.padding(0.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else if (imageUri != null) {
+                    AsyncImage(
+                        model = imageUri,
+                        contentDescription = "Selected Image",
+                        alignment = Center,
+                        modifier = Modifier.padding(0.dp),
+                        contentScale = ContentScale.Fit
+                    )
+
+                }
             }
 
             Column(
                 modifier = Modifier
                     .padding(start = 10.dp)
             ) {
-                SearchableDropdowns(
-                    items = listOf(
-                        "POD",
-                        "POD Extra Document",
-                        "Opening KM",
-                        "Closing KM",
-                        "Mountain Start KM",
-                        "POD",
-                        "POD Extra Document",
-                        "Opening KM",
-                        "Closing KM",
-                        "Mountain Start KM",
-                    ),
-                    onDocumentSelected = { },
-                    selectedItem = "",
-                    readOnly = true
+                DocumentItemSearchDropDown(
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                SearchableDropdowns(
-                    items = listOf(
-                        "POD",
-                        "POD Extra Document",
-                        "Opening KM",
-                        "Closing KM",
-                        "Mountain Start KM",
-                        "POD",
-                        "POD Extra Document",
-                        "Opening KM",
-                        "Closing KM",
-                        "Mountain Start KM",
-                    ),
-                    onDocumentSelected = { },
-                    selectedItem = "",
-                    readOnly = true
+                DocumentItemSearchDropDown(
+
                 )
 
             }
@@ -113,7 +115,7 @@ fun DocumentEachRow(
                 modifier = Modifier
                     .padding(start = 10.dp)
                     .clickable {
-                        onUpdate()
+                        onUpload()
                     }
 
             )
@@ -123,7 +125,7 @@ fun DocumentEachRow(
                 modifier = Modifier
                     .padding(start = 5.dp)
                     .clickable {
-                        onDelete()
+                        onReject()
                     }
             )
         }
@@ -132,4 +134,106 @@ fun DocumentEachRow(
 
 
 }
+
+@Composable
+fun DocumentItemSearchDropDown(
+) {
+    var searchText by remember { mutableStateOf("") }
+
+    var expanded by remember { mutableStateOf(false) }
+
+
+    val icon = if (expanded) Icons.Filled.KeyboardArrowUp
+    else Icons.Filled.KeyboardArrowDown
+
+
+    BasicTextField(
+        value = searchText,
+        readOnly = true,
+        onValueChange = {
+            searchText = it
+        },
+        maxLines = 1,
+        singleLine = true,
+        textStyle = TextStyle(
+            fontSize = 14.sp,
+            color = Black,
+            textAlign = TextAlign.End,
+            fontWeight = FontWeight.Bold,
+        ),
+        decorationBox = {
+            Box(
+                contentAlignment = Alignment.CenterStart,
+
+                ) {
+                val text =
+                    if (searchText!!.isEmpty()) "Search Document" else searchText
+                Text(
+                    text,
+                    color = Color(0xFF626262),
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 10.dp)
+
+
+                )
+                Icon(
+                    icon,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .clickable { expanded = !expanded }
+                )
+            }
+
+
+        },
+        modifier = Modifier
+            .clickable {
+                expanded = true
+            }
+            .border(
+                BorderStroke(1.dp, Color(0xFFDCDCDC)),
+                shape = RoundedCornerShape(4.dp)
+            )
+            .padding(8.dp)
+            .fillMaxWidth(0.7f)
+
+
+    )
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false },
+        modifier = Modifier
+            .background(White)
+
+
+    ) {
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            maxLines = 1,
+            textStyle = TextStyle(fontSize = 15.sp),
+            placeholder = { Text("Search Document") },
+            colors = androidx.compose.material.TextFieldDefaults.textFieldColors(
+                backgroundColor = White,
+                focusedIndicatorColor = Transparent,
+                disabledIndicatorColor = Transparent,
+                unfocusedIndicatorColor = Transparent,
+                cursorColor = Black
+            ),
+            modifier = Modifier
+                .padding(8.dp)
+                .border(
+                    BorderStroke(1.dp, Color(0xFFDCDCDC)),
+                    shape = RoundedCornerShape(4.dp)
+                )
+
+
+        )
+
+    }
+}
+
 

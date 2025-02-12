@@ -1,22 +1,34 @@
 package com.example.documentbank.DocumentBank.domain.ui.Screens.documentBankScreen
 
+import android.content.ContentValues
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,8 +36,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -42,16 +56,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -61,8 +79,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.documentbank.DocumentBank.Navigation.vehicleExpenseSettlementScreen
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentBankListRequest
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentBankListResponse
@@ -70,6 +90,11 @@ import com.example.documentbank.DocumentBank.data.model.documentbanklist.Documen
 import com.example.documentbank.DocumentBank.domain.ui.viewmodel.DocumentBankListViewModel
 import com.example.documentbank.DocumentBank.utils.ApiState
 import com.example.documentbank.R
+import kotlinx.coroutines.flow.collectLatest
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import kotlin.math.roundToInt
 
 
@@ -78,15 +103,10 @@ fun DocumentBank(
     navHostController: NavHostController,
     viewModel: DocumentBankListViewModel = hiltViewModel()
 ) {
-
-    val documentList = listOf(
-        "POD",
-        "POD Extra Document",
-        "Opening KM",
-        "Closing KM",
-        "Mountain Start KM"
-    )
     val documents by viewModel.documents.collectAsState()
+
+    val status = viewModel.uploadDocumentBankMediaFileLiveData.value
+
     Log.e("__D", documents.toString())
 
     val scrollState = rememberLazyListState()
@@ -100,23 +120,56 @@ fun DocumentBank(
 
     val documentTypes = viewModel.documentTypes.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val imageList by viewModel.imageList.collectAsState()
 
     var selectedDocumentType by remember { mutableStateOf<DocumentTypeResponse?>(null) }
 
+    val documentList by remember { mutableStateOf<DocumentBankListResponse?>(null) }
     val selectedType = viewModel.selectedDocumentType.collectAsState()
 
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
     val dcListRequest = DocumentBankListRequest(
-        modelId = "2016",
+        modelId = "2004",
         model = "Load",
         fileType = "image",
         collection = "document-bank",
-
     )
+    val uploadState by viewModel.uploadState.collectAsState()
+
+    val context = LocalContext.current
+
+    var showPreview by remember { mutableStateOf(false) }
+    var selectedUri by remember { mutableStateOf<Uri?>(null) }
+
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                viewModel.addImage(uri)
+                val file = uriToFile(context, it)
+                viewModel.uploadImage(file)
+                viewModel.uploadImage(file)
+                Log.e("TAG", viewModel.uploadImage(file).toString())
+            }
+        }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                val uri = saveBitmapToMediaStore(context, it)
+                viewModel.addImage(uri!!)
+                val file = saveBitmapToFile(context, it)
+                viewModel.uploadImage(file)
+            }
+        }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { viewModel.documents.value }.collectLatest {
+            viewModel.fetchDocuments(request = dcListRequest)
+        }
+    }
     LaunchedEffect(key1 = Unit) {
-        viewModel.fetchDocuments(request = dcListRequest)
+        viewModel.fetchDocumentTypes()
     }
 
     Scaffold(
@@ -161,13 +214,30 @@ fun DocumentBank(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SearchableDropdowns(
-                        items = documentList,
-                        onDocumentSelected = { selectedDocument = it },
-                        selectedItem = selectedDocument,
-                        readOnly = false
+                    val result = documentTypes.value
+                    when (result) {
+                        is ApiState.Failure -> {
+                            val errorMsg = result.message
+                            Text(text = "Error: $errorMsg", color = Red)
+                        }
 
-                    )
+                        ApiState.Loading -> {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                CircularProgressIndicator()
+                            }
+                        }
+
+                        is ApiState.Success -> {
+                            SearchableDropdowns(
+                                items = result.data,
+                                onDocumentSelected = { selectedDocument = it },
+                                selectedItem = selectedDocument
+
+                            )
+                        }
+                    }
+
+
                     Button(
                         onClick = {
                             showImageDialog = true
@@ -189,10 +259,17 @@ fun DocumentBank(
                         ImagePickerDialog(
                             onDismiss = {
                                 showImageDialog = false
-                            },
-                            onPickFromGallery = {},
-                            onPickFromCamera = {}
+                            }, onPickFromGallery = {
+                                galleryLauncher.launch("image/*")
+                                showImageDialog = false
+
+                            }, onPickFromCamera = {
+                                cameraLauncher.launch()
+                                showImageDialog = false
+
+                            }
                         )
+
 
                 }
                 when (documents) {
@@ -213,17 +290,24 @@ fun DocumentBank(
                             state = scrollState,
                             modifier = Modifier.fillMaxSize(),
                         ) {
-                            itemsIndexed(result) { _, document ->
-                                DocumentEachRow(
-                                    document = document,
-                                    onDelete = {},
-                                    onEdit = {},
-                                    onReject = {},
-                                    onUpdate = {})
+
+                            items(imageList) { uri ->
+                                DocumentEachRow(imageUri = uri, onUpload = {}, onReject = {
+                                    viewModel.removeImage(uri)
+                                })
 
                             }
+                            items(result) { document ->
+                                DocumentEachRow(imageUrl = document.file_url,
+                                    onUpload = {},
+                                    onReject = {
+                                        viewModel.deleteDocument(document.id)
+                                    })
+                            }
+
 
                         }
+
                     }
 
 
@@ -237,13 +321,25 @@ fun DocumentBank(
     }
 }
 
+@Composable
+fun ImagePreviewDialog(imageUri: Uri, onDismiss: () -> Unit) {
+    AlertDialog(onDismissRequest = { onDismiss() },
+        buttons = {},
+        title = { Text("Image Preview") },
+        text = {
+            Image(
+                painter = rememberAsyncImagePainter(imageUri),
+                contentDescription = "Preview Image",
+                modifier = Modifier.fillMaxWidth()
+            )
+        })
+}
+
 
 @Composable
 fun SearchableDropdowns(
-    modifier: Modifier = Modifier,
-    items: List<String>,
+    modifier: Modifier = Modifier, items: List<DocumentTypeResponse>,
     selectedItem: String,
-    readOnly: Boolean = false,
     onDocumentSelected: (String) -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
@@ -251,15 +347,13 @@ fun SearchableDropdowns(
     var expanded by remember { mutableStateOf(false) }
 
     val filteredItems = remember(searchText) {
-        items.filter { it.contains(searchText, ignoreCase = true) }
+        items.filter { it.name.contains(searchText, ignoreCase = true) }
     }
 
     val icon = if (expanded) Icons.Filled.KeyboardArrowUp
     else Icons.Filled.KeyboardArrowDown
 
-    BasicTextField(
-        value = searchText,
-        readOnly = readOnly,
+    BasicTextField(value = searchText, readOnly = true,
         onValueChange = {
             searchText = it
         },
@@ -304,8 +398,7 @@ fun SearchableDropdowns(
                 expanded = true
             }
             .border(
-                BorderStroke(1.dp, Color(0xFFDCDCDC)),
-                shape = RoundedCornerShape(4.dp)
+                BorderStroke(1.dp, Color(0xFFDCDCDC)), shape = RoundedCornerShape(4.dp)
             )
             .padding(8.dp)
             .fillMaxWidth(0.7f)
@@ -320,7 +413,7 @@ fun SearchableDropdowns(
 
 
     ) {
-        androidx.compose.material.OutlinedTextField(
+        OutlinedTextField(
             value = searchText,
             onValueChange = { searchText = it },
             maxLines = 1,
@@ -336,33 +429,34 @@ fun SearchableDropdowns(
             modifier = modifier
                 .padding(8.dp)
                 .border(
-                    BorderStroke(1.dp, Color(0xFFDCDCDC)),
-                    shape = RoundedCornerShape(4.dp)
+                    BorderStroke(1.dp, Color(0xFFDCDCDC)), shape = RoundedCornerShape(4.dp)
                 )
 
 
         )
         if (filteredItems.isEmpty()) {
-            androidx.compose.material.DropdownMenuItem(
-                onClick = { },
+            DropdownMenuItem(
+                onClick = { }, modifier = Modifier.fillMaxWidth()
             ) {
                 Text("No results found")
             }
         } else {
             filteredItems.forEach { item ->
-                androidx.compose.material.DropdownMenuItem(
+                DropdownMenuItem(
                     onClick = {
-                        onDocumentSelected(item)
+                        onDocumentSelected(item.name)
                         searchText = ""
                         expanded = false
-                    },
+                    }, modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(item)
+                    Text(item.name)
                 }
             }
         }
     }
+
 }
+
 
 @Composable
 fun ImagePickerDialog(
@@ -371,13 +465,45 @@ fun ImagePickerDialog(
     onPickFromCamera: () -> Unit
 ) {
     AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Choose an Image") },
+        onDismissRequest = onDismiss, shape = RoundedCornerShape(8.dp), backgroundColor = White,
         text = {
             Column {
-                TextButton(onClick = onPickFromGallery) { Text("Pick from Gallery") }
-                TextButton(onClick = onPickFromCamera) { Text("Pick from Camera") }
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = {}) {
+                    Text(
+                        text = "Select File",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue
+                    )
+                }
+                TextButton(
+                    onClick = onPickFromCamera, modifier = Modifier.padding(top = 5.dp)
+                ) {
+                    Text(
+                        "Take a photo", fontSize = 16.sp, color = Black
+                    )
+                }
+                TextButton(onClick = onPickFromGallery) {
+                    Text(
+                        "Select image from gallery", fontSize = 16.sp, color = Black
+                    )
+                }
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .fillMaxWidth()
+                        .background(Black, shape = RoundedCornerShape(8.dp))
+                ) {
+                    Text(
+                        "Cancel",
+                        fontSize = 16.sp,
+                        color = White,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         },
         confirmButton = {},
@@ -417,6 +543,112 @@ fun MoveableImageButton() {
         )
     }
 }
+
+@Composable
+fun ImageItem(uri: Uri) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 5.dp)
+            .background(White)
+            .clip(shape = RoundedCornerShape(8.dp))
+            .border(1.dp, Color(0xFFDCDCDC), shape = RoundedCornerShape(8.dp))
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color(0xFFEEEEEE))
+                    .border(1.dp, Color(0xFFEEEEEE), shape = RoundedCornerShape(10.dp)),
+                contentAlignment = Center,
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
+                    contentDescription = "",
+                    alignment = Center,
+                    modifier = Modifier.padding(0.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            Column(
+                modifier = Modifier.padding(start = 10.dp)
+            ) {
+                DocumentItemSearchDropDown(
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+                DocumentItemSearchDropDown(
+
+                )
+
+            }
+            Image(painter = painterResource(id = R.drawable.ic_upload),
+                contentDescription = "",
+                modifier = Modifier
+                    .padding(start = 10.dp)
+                    .clickable {
+
+                    }
+
+            )
+            Image(painter = painterResource(id = R.drawable.ic_delete),
+                contentDescription = "",
+                modifier = Modifier
+                    .padding(start = 5.dp)
+                    .clickable {})
+        }
+
+    }
+
+
+}
+
+fun saveBitmapToMediaStore(context: Context, bitmap: Bitmap): Uri? {
+    val contentValues = ContentValues().apply {
+        put(MediaStore.Images.Media.DISPLAY_NAME, "captured_${System.currentTimeMillis()}.jpg")
+        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+    }
+
+    val resolver = context.contentResolver
+    val imageUri: Uri? =
+        resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+    imageUri?.let { uri ->
+        resolver.openOutputStream(uri)?.use { outputStream ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        }
+    }
+    return imageUri
+}
+
+fun createImageUri(context: Context): Uri {
+    val file = File(context.cacheDir, "${System.currentTimeMillis()}.jpg")
+    return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+}
+
+fun saveBitmapToFile(context: Context, bitmap: Bitmap): File {
+    val file = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
+    file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
+    return file
+}
+
+fun uriToFile(context: Context, uri: Uri): File {
+    val file = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
+    val inputStream = context.contentResolver.openInputStream(uri)
+    file.outputStream().use { output -> inputStream?.copyTo(output) }
+    return file
+}
+
+
+
 
 
 

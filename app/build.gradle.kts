@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id ("com.google.dagger.hilt.android")
     id ("com.google.devtools.ksp") version "1.9.10-1.0.13"
+    kotlin("plugin.serialization") version "2.1.10"
 }
 
 android {
@@ -108,6 +109,10 @@ dependencies {
 
     implementation ("androidx.compose.runtime:runtime:1.7.6")
     implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+
+    implementation("com.google.code.gson:gson:2.10.1")
 
 
 }

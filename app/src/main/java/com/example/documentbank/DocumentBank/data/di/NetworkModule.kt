@@ -54,9 +54,10 @@ object NetworkModule {
     @Singleton
     fun provideAppRepository(
         apiService: ApiService,
-        sharedPreferences: TokenManager
+        sharedPreferences: TokenManager,
+        @ApplicationContext context: Context
     ): MainRepository {
-        return RepositoryImpl(apiService, sharedPreferences)
+        return RepositoryImpl(apiService, sharedPreferences,context)
     }
 
 }

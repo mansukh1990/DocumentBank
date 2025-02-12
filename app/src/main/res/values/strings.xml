@@ -18,4 +18,10 @@
     <string name="str_driver_direct_payment">Driver Direct Payment</string>
     <string name="str_to_pay">Amount to Pay(₹)</string>
     <string name="str_settle">Settle</string>
+    <string name="str_socket_error_message">Network connection has timed out. Please check your internet connection and try again later.</string>
+    <string name="str_connection_error_message">Unable to establish a connection with the server. Please check your internet connection and try again. If the issue persists, it may be due to server problems or high network traffic. Please try again later.</string>
+    <string name="str_unknownhost_error_message">Unable to establish a connection to the server. This could be due to a temporary network issue or server unavailability.Please try again.</string>
+    <string name="str_io_error_message">Unable to read or write data from the server , Please try again later.</string>
+    <string name="network_error">You don\'t seem to have an active internet connection, check your network connection and try again.!!!</string>
+
 </resources>

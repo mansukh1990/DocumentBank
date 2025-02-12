@@ -1,17 +1,25 @@
 package com.example.documentbank.DocumentBank.domain.ui.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.documentbank.BaseApplication
+import com.example.documentbank.DocumentBank.data.model.ApiResp
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentBankListRequest
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentBankListResponse
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentTypeRequest
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentTypeResponse
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.GetDocumentTypeValueRequest
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.GetDocumentTypeValueResponse
+import com.example.documentbank.DocumentBank.data.model.documentbanklist.UploadDocumentBankMediaFileRequest
 import com.example.documentbank.DocumentBank.data.model.login.LoginRequest
 import com.example.documentbank.DocumentBank.data.model.login.LoginResponse
 import com.example.documentbank.DocumentBank.domain.repository.MainRepository
+import com.example.documentbank.DocumentBank.domain.use_case.UploadDocumentBankMediaFileUseCase
 import com.example.documentbank.DocumentBank.utils.ApiState
+import com.example.documentbank.R
+import com.example.documentbank.common.ResponseCode.checkNetworkAvailability
+import com.example.documentbank.remote.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,8 +32,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DocumentBankListViewModel @Inject constructor(
-    private val repository: MainRepository
+    private val repository: MainRepository,
+    private val uploadDocumentBankMediaFileUseCase: UploadDocumentBankMediaFileUseCase
 ) : ViewModel() {
+
+    var leadCode = ""
+    var modelType = ""
+    var modelId = ""
 
     private val _loginState = MutableStateFlow<ApiState<LoginResponse>?>(null)
     val loginState: StateFlow<ApiState<LoginResponse>?> = _loginState.asStateFlow()
@@ -43,7 +56,11 @@ class DocumentBankListViewModel @Inject constructor(
 
     private val _documents =
         MutableStateFlow<ApiState<List<DocumentBankListResponse>>>(ApiState.Loading)
-    val documents: StateFlow<ApiState<List<DocumentBankListResponse>>> = _documents.asStateFlow()
+    val documents: StateFlow<ApiState<List<DocumentBankListResponse>>> = _documents
+
+    private val _documentList = MutableStateFlow<List<DocumentBankListResponse>>(emptyList())
+    val documentList: StateFlow<List<DocumentBankListResponse>> = _documentList
+
 
     private val _documentsTypeValue =
         MutableStateFlow<ApiState<List<GetDocumentTypeValueResponse>>>(ApiState.Loading)
@@ -53,25 +70,13 @@ class DocumentBankListViewModel @Inject constructor(
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
+    private val _uploadState = MutableStateFlow<ApiState<Any?>>(ApiState.Loading)
+    val uploadState: StateFlow<ApiState<Any?>> = _uploadState
+
     init {
         fetchDocumentTypes()
     }
 
-    fun uploadDocumentBankMediaFile(
-        model: String,
-        model_id: String,
-        collection: String,
-        media_file: File
-    ) {
-        viewModelScope.launch {
-            repository.uploadDocumentBankMediaFile(
-                model = model,
-                model_id = model_id,
-                collection = collection,
-                media_file = media_file
-            )
-        }
-    }
 
     fun getDocumentTypeValue(request: GetDocumentTypeValueRequest) {
         viewModelScope.launch {
@@ -109,7 +114,7 @@ class DocumentBankListViewModel @Inject constructor(
     }
 
 
-    val request = DocumentTypeRequest(
+    private val request = DocumentTypeRequest(
         model = "Load",
         modelId = "2016",
         linkedInputTypeId = "1",
@@ -149,7 +154,7 @@ class DocumentBankListViewModel @Inject constructor(
                         _documents.value = ApiState.Loading
                     }
                     .catch { e ->
-                        _documents.value = ApiState.Failure(e.message ?: "inknown error")
+                        _documents.value = ApiState.Failure(e.message ?: "unknown error")
                     }.collect { result ->
                         _documents.value = ApiState.Success(result)
                         allDocuments.addAll(result)
@@ -161,5 +166,68 @@ class DocumentBankListViewModel @Inject constructor(
 
         }
     }
+
+    fun uploadImage(
+        file: File,
+    ) {
+        viewModelScope.launch {
+            _uploadState.value = ApiState.Loading
+            repository.uploadDocument(
+                file
+            ).collect {
+                _uploadState.value = ApiState.Success(it.toString())
+                fetchDocuments(
+                    request = DocumentBankListRequest(
+                        modelId = "2016",
+                        fileType = "image",
+                        model = "Load",
+                        collection = "document-bank"
+                    )
+                )
+            }
+
+        }
+    }
+
+    private val _imageList = MutableStateFlow<List<Uri>>(emptyList())
+    val imageList: StateFlow<List<Uri>> = _imageList.asStateFlow()
+
+    fun addImage(uri: Uri) {
+        _imageList.value = listOf(uri) + _imageList.value
+
+    }
+
+    fun removeImage(uri: Uri) {
+        _imageList.value -= uri
+    }
+
+    fun updateDocument(updatedDocument: DocumentBankListResponse) {
+        _documentList.value = _documentList.value.map {
+            if (it.id == updatedDocument.id) updatedDocument else it
+        }
+    }
+
+    fun deleteDocument(documentId: String) {
+        _documentList.value = _documentList.value.filterNot { it.id == documentId }
+    }
+
+    private val uploadDocumentBankMediaFilePrivate: MutableStateFlow<Resource<ApiResp<Any?>>> =
+        MutableStateFlow(Resource.Empty())
+    val uploadDocumentBankMediaFileLiveData: MutableStateFlow<Resource<ApiResp<Any?>>> get() = uploadDocumentBankMediaFilePrivate
+
+    fun uploadDocumentBankMediaFile(apiRequest: UploadDocumentBankMediaFileRequest) {
+        viewModelScope.launch {
+            if (checkNetworkAvailability()) {
+                uploadDocumentBankMediaFileUseCase.execute(request = apiRequest).collect {
+                    uploadDocumentBankMediaFilePrivate.value = it
+                }
+            } else {
+                uploadDocumentBankMediaFilePrivate.value = Resource.DataError(
+                    message = BaseApplication.applicationContext().getString(R.string.network_error)
+                )
+            }
+        }
+    }
+
 
 }

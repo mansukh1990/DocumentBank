@@ -9,7 +9,9 @@ import com.example.documentbank.DocumentBank.data.model.documentbanklist.GetDocu
 import com.example.documentbank.DocumentBank.data.model.login.LoginRequest
 import com.example.documentbank.DocumentBank.data.model.login.LoginResponse
 import com.example.documentbank.DocumentBank.utils.ApiState
+import com.example.documentbank.remote.Resource
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MultipartBody
 import java.io.File
 
 interface MainRepository {
@@ -30,14 +32,18 @@ interface MainRepository {
 
     suspend fun uploadDocumentBankMediaFile(
         model: String,
-        model_id: String,
+        modelId: String,
         collection: String,
-        media_file: File
+        mediaFile: File
     ): Flow<ApiState<Unit>>
 
+    suspend fun uploadDocument(
+        mediaFile: File,
+    ): Flow<Resource<Any?>>
 
     suspend fun getDocumentTypeValue(
         request: GetDocumentTypeValueRequest,
     ): Flow<ApiState<List<GetDocumentTypeValueResponse>>>
+
 
 }

@@ -2,12 +2,17 @@ package com.example.documentbank.DocumentBank.domain.ui.viewmodel.events
 
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentBankListResponse
 
-sealed class DocumentBankEvent {
+sealed class NoteEvents {
+    data class AddNoteEvent(val data: DocumentBankListResponse) : NoteEvents()
+    data class DeleteNoteEvent(val id: Int) : NoteEvents()
+    data class UpdateNoteEvent(val id: Int, val note: DocumentBankListResponse) : NoteEvents()
+    object ShowNotes : NoteEvents()
 
-    data class AddDocumentBank(val documentBank: DocumentBankListResponse) : DocumentBankEvent()
-    object GetDocumentBank : DocumentBankEvent()
-    data class DeleteDocumentBank(val id: Int) : DocumentBankEvent()
-    data class UpdateDocumentBank(val id: Int, val documentBank: DocumentBankListResponse) :
-        DocumentBankEvent()
+}
+
+sealed class NoteUiEvents {
+    data class Success(val data: DocumentBankListResponse) : NoteUiEvents()
+    data class Failure(val msg: String) : NoteUiEvents()
+    object Loading : NoteUiEvents()
 
 }

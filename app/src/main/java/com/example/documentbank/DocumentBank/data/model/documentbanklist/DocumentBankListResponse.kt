@@ -1,7 +1,5 @@
 package com.example.documentbank.DocumentBank.data.model.documentbanklist
 
-import com.example.documentbank.DocumentBank.data.model.Paginate
-
 data class DocumentBankListResponse(
     val file_extension: String,
     val file_url: String,
@@ -15,5 +13,4 @@ data class DocumentBankListResponse(
     val linked_input_value_name: String,
     val model_id: String,
     val model_type: String,
-    val paginate: Paginate
 )
