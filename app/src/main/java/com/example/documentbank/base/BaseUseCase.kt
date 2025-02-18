@@ -6,7 +6,7 @@ import com.example.documentbank.DocumentBank.data.model.ApiResp
 import com.example.documentbank.DocumentBank.utils.TokenManager
 import com.example.documentbank.R
 import com.example.documentbank.common.ResponseCode
-import com.example.documentbank.remote.Resource
+import com.example.documentbank.utils.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.retry

@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.documentbank" />
+                  <option name="mobileSdkAppId" value="1:475127666733:android:634c33b475daa0695b80a4" />
+                  <option name="projectId" value="fir-compose-4cfa3" />
+                  <option name="projectNumber" value="475127666733" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

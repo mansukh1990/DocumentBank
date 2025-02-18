@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "475127666733",
+    "project_id": "fir-compose-4cfa3",
+    "storage_bucket": "fir-compose-4cfa3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475127666733:android:634c33b475daa0695b80a4",
+        "android_client_info": {
+          "package_name": "com.example.documentbank"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH6lmP_SIscuVGTY7mH6-ysAMQ_YHRAfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

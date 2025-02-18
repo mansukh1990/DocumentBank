@@ -1,9 +1,13 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id ("com.google.dagger.hilt.android")
     id ("com.google.devtools.ksp") version "1.9.10-1.0.13"
     kotlin("plugin.serialization") version "2.1.10"
+    id ("com.google.gms.google-services")
 }
 
 android {
@@ -20,6 +24,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        Properties().apply {
+            val filePath = file("keys.properties").path
+            load(FileInputStream(filePath))
+
+            val apiKey = getProperty("apiKey")
+            val MAPS_API_KEY = getProperty("MAPS_API_KEY")
+
+            buildConfigField("String", "API_KEY", apiKey)
+
+            manifestPlaceholders["MAPS_API_KEY"] = "\"${MAPS_API_KEY}\""
         }
     }
 
@@ -41,6 +56,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -64,6 +80,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.common)
+    implementation(libs.firebase.database.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -84,6 +101,12 @@ dependencies {
     //coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
+
+    //firebase
+    implementation(platform("com.google.firebase:firebase-bom:30.3.2"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
 
     //ktor
     implementation(libs.ktor.client.android)
@@ -107,12 +130,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
 
-    implementation ("androidx.compose.runtime:runtime:1.7.6")
-    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-
-    implementation("com.google.code.gson:gson:2.10.1")
+    //noinspection GradleDependency,UseTomlInstead
+    implementation("com.google.code.gson:gson:1.9.0")
 
 
 }

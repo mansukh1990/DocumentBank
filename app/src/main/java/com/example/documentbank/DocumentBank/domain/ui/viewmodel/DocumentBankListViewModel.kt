@@ -19,7 +19,7 @@ import com.example.documentbank.DocumentBank.domain.use_case.UploadDocumentBankM
 import com.example.documentbank.DocumentBank.utils.ApiState
 import com.example.documentbank.R
 import com.example.documentbank.common.ResponseCode.checkNetworkAvailability
-import com.example.documentbank.remote.Resource
+import com.example.documentbank.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

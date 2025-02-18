@@ -2,7 +2,6 @@ package com.example.documentbank.DocumentBank.data.repository
 
 import android.content.Context
 import android.util.Log
-import com.example.documentbank.DocumentBank.data.model.ApiResp
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentBankListRequest
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentBankListResponse
 import com.example.documentbank.DocumentBank.data.model.documentbanklist.DocumentTypeRequest
@@ -16,7 +15,7 @@ import com.example.documentbank.DocumentBank.domain.repository.MainRepository
 import com.example.documentbank.DocumentBank.utils.ApiState
 import com.example.documentbank.DocumentBank.utils.TokenManager
 import com.example.documentbank.common.ResponseCode
-import com.example.documentbank.remote.Resource
+import com.example.documentbank.utils.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -134,10 +133,10 @@ class RepositoryImpl @Inject constructor(
     }
 
     override suspend fun uploadDocument(mediaFile: File): Flow<Resource<Any?>> {
+
         val requestBody = "mediaFile".toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val multipartBody =
             MultipartBody.Part.createFormData("media_file", mediaFile.name, requestBody)
-
 
         return flow {
             try {
