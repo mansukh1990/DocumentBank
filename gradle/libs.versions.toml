@@ -2,7 +2,6 @@
 agp = "8.6.1"
 coilCompose = "2.4.0"
 converterGson = "2.9.0"
-firebaseBom = "33.9.0"
 hiltAndroid = "2.47"
 hiltNavigationCompose = "1.2.0"
 kotlin = "1.9.0"
@@ -26,7 +25,8 @@ moshiKotlin = "1.13.0"
 navigationCompose = "2.8.5"
 retrofit = "2.11.0"
 common = "18.11.0"
-firebaseDatabaseKtx = "21.0.0"
+googleGmsGoogleServices = "4.4.2"
+firebaseDatabase = "21.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -65,9 +65,10 @@ okhttp = { module = "com.squareup.okhttp3:okhttp" }
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "4.11.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 common = { group = "com.google.mlkit", name = "common", version.ref = "common" }
-firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

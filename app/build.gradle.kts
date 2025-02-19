@@ -7,7 +7,7 @@ plugins {
     id ("com.google.dagger.hilt.android")
     id ("com.google.devtools.ksp") version "1.9.10-1.0.13"
     kotlin("plugin.serialization") version "2.1.10"
-    id ("com.google.gms.google-services")
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -17,6 +17,7 @@ android {
     defaultConfig {
         applicationId = "com.example.documentbank"
         minSdk = 24
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -80,7 +81,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.common)
-    implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -101,13 +102,6 @@ dependencies {
     //coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
-
-    //firebase
-    implementation(platform("com.google.firebase:firebase-bom:30.3.2"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-auth-ktx")
-
     //ktor
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.serialization.kotlinx.json)
