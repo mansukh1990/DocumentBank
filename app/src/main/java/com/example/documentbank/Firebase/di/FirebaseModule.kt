@@ -2,6 +2,8 @@ package com.example.documentbank.Firebase.di
 
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
@@ -17,4 +19,8 @@ object FirebaseModule {
     @Singleton
     fun providesRealtimeDb(): DatabaseReference =
        Firebase.database.reference.child("user")
+
+    @Provides
+    @Singleton
+    fun providesFirestoreDb(): FirebaseFirestore = Firebase.firestore
 }

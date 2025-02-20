@@ -1,4 +1,4 @@
-package com.example.documentbank.Firebase.ui
+package com.example.documentbank.Firebase.firebaseRealtimeDb.ui
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State

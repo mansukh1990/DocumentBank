@@ -34,15 +34,18 @@
             android:value="${MAPS_API_KEY}" />
 
         <activity
-            android:name=".Firebase.RealTimeDatabaseActivity"
+            android:name=".Firebase.firestoreDb.FirestoreActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+
+        <activity
+            android:name=".Firebase.firebaseRealtimeDb.RealTimeDatabaseActivity"
+            android:exported="false" />
 
         <activity
             android:name=".DocumentBankActivity"

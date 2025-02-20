@@ -1,4 +1,4 @@
-package com.example.documentbank.Firebase.ui
+package com.example.documentbank.Firebase.firebaseRealtimeDb.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
