@@ -1,5 +1,7 @@
 package com.example.documentbank.Firebase.di
 
+import com.example.documentbank.Firebase.FIrebaseAuth.repository.AuthRepository
+import com.example.documentbank.Firebase.FIrebaseAuth.repository.AuthRepositoryImpl
 import com.example.documentbank.Firebase.firebaseRealtimeDb.repository.RealtimeDbRepositoryImpl
 import com.example.documentbank.Firebase.firebaseRealtimeDb.repository.RealtimeRepository
 import com.example.documentbank.Firebase.firestoreDb.repository.FirestoreDbRepositoryImpl
@@ -22,4 +24,9 @@ abstract class RepositoryModule {
     abstract fun providesFirestoreRepository(
         repo: FirestoreDbRepositoryImpl
     ): FirestoreRepository
+
+    @Binds
+    abstract fun providesFirebaseAuthRepository(
+        repositoryImpl: AuthRepositoryImpl
+    ): AuthRepository
 }

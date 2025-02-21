@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.common)
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -128,6 +129,7 @@ dependencies {
 
     //noinspection GradleDependency,UseTomlInstead
     implementation("com.google.code.gson:gson:1.9.0")
+    implementation("com.google.firebase:firebase-auth:22.3.1")
 
 
 }

@@ -34,7 +34,7 @@
             android:value="${MAPS_API_KEY}" />
 
         <activity
-            android:name=".Firebase.firestoreDb.FirestoreActivity"
+            android:name=".Firebase.FIrebaseAuth.AuthActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,6 +42,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".Firebase.firestoreDb.FirestoreActivity"
+            android:exported="false" />
 
         <activity
             android:name=".Firebase.firebaseRealtimeDb.RealTimeDatabaseActivity"
