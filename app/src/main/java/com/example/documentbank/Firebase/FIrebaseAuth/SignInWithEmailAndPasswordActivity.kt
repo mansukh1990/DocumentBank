@@ -11,7 +11,7 @@ import com.example.documentbank.ui.theme.DocumentBankTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AuthActivity : ComponentActivity() {
+class SignInWithEmailAndPasswordActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

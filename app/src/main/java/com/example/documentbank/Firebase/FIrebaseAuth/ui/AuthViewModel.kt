@@ -1,5 +1,6 @@
 package com.example.documentbank.Firebase.FIrebaseAuth.ui
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import com.example.documentbank.Firebase.FIrebaseAuth.AuthUser
 import com.example.documentbank.Firebase.FIrebaseAuth.repository.AuthRepository
@@ -18,4 +19,13 @@ class AuthViewModel @Inject constructor(
     fun loginUser(
         authUser: AuthUser
     ) = authRepository.loginUser(authUser)
+
+    fun createUserWithPhone(
+        phone: String,
+        activity: Activity
+    ) = authRepository.createUserWithPhone(phone = phone, activity = activity)
+
+    fun signInWithCredential(
+        otp: String
+    ) = authRepository.signWithCredential(otp = otp)
 }
