@@ -84,6 +84,8 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.storage)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -95,6 +97,7 @@ dependencies {
 
     implementation (libs.androidx.material)
     implementation (libs.coil.compose)
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     //dagger hilt
     implementation(libs.hilt.android)
@@ -130,6 +133,5 @@ dependencies {
     //noinspection GradleDependency,UseTomlInstead
     implementation("com.google.code.gson:gson:1.9.0")
     implementation("com.google.firebase:firebase-auth:22.3.1")
-
-
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
 }

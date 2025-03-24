@@ -1,5 +1,5 @@
 [versions]
-agp = "8.6.1"
+agp = "8.3.2"
 coilCompose = "2.4.0"
 converterGson = "2.9.0"
 hiltAndroid = "2.47"
@@ -28,6 +28,9 @@ common = "18.11.0"
 googleGmsGoogleServices = "4.4.2"
 firebaseDatabase = "21.0.0"
 firebaseFirestoreKtx = "25.1.2"
+firebaseStorage = "21.0.1"
+runtimeLivedata = "1.7.8"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -70,6 +73,8 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 common = { group = "com.google.mlkit", name = "common", version.ref = "common" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
